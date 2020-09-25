@@ -11,6 +11,7 @@ class TuneType {
     this._artist;
     this._genre;
     this._yearPub;
+    // defines a stack for gathering error
     this.error = [];
 
     // declare class methods
