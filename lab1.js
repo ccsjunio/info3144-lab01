@@ -11,10 +11,7 @@ class TuneType {
     this._artist;
     this._genre;
     this._yearPub;
-    this.error = {
-      status: false,
-      message: ''
-    }
+    this.error = [];
 
     // declare class methods
     /**************************************************************
@@ -40,7 +37,7 @@ class TuneType {
       // check if song is defined
       if(!song){
         this._song = null;
-        this.error = {status: true, message: 'The song was not defined!'};
+        this.error.push({status: true, message: 'The song was not defined!'});
       }
       this._song = song;
     } 
@@ -54,7 +51,7 @@ class TuneType {
       // check if artist is defined
       if(!artist){
         this._artist = null;
-        this.error = {status:true, message:'Artist was not defined'};
+        this.error.push({status:true, message:'Artist was not defined'});
       }
       this._artist = artist;
     }
@@ -68,7 +65,7 @@ class TuneType {
       // check if genre is defined
       if(!genre){
         this._genre = null;
-        this.error = {status:true, message:'Genre was not defined!'};
+        this.error.push({status:true, message:'Genre was not defined!'});
       }
       this._genre = genre;
     }
@@ -82,26 +79,26 @@ class TuneType {
       // check if yearPub is defined
       if(!yearPub){
         this._yearPub = null;
-        this.error = {status:true, message:'year of publication was not defined'};
+        this.error.push({status:true, message:'The year of publication was not defined'});
         return;
       }
       // check if yearPub is number
       if(isNaN(yearPub)){
         this._yearPub = null;
-        this.error = {status:true, message:'year of publication is not a number'};
+        this.error.push({status:true, message:'The year of publication is not a number'});
         return;
       }
       // check if yearPub has 4 digits
       if(yearPub.toString().length!==4){
         this._yearPub = null;
-        this.error = {status:true, message:'year of publication does not have 4 digits'};
+        this.error.push({status:true, message:'The year of publication does not have 4 digits'});
         return;
       }
 
       // check if yearPub is between 1950 and 2019
       if(yearPub <= this.MIN_YEAR || yearPub >= this.MAX_YEAR){
         this._yearPub = null;
-        this.error = {status:true, message:`year is not between ${this.MIN_YEAR} and ${this.MAX_YEAR}`};
+        this.error.push({status:true, message:`The year is not between ${this.MIN_YEAR} and ${this.MAX_YEAR}`});
         return;
       }
 
@@ -203,13 +200,18 @@ function startMeUp(){
 
     let thisMarkup = '';
 
-    if(song.error.status){
+    if(song.error.length > 0){
+
+      let errorMarkup = song.error.reduce((acc, err, index)=>(
+         acc + `<p class"card-text">${err.message}</p>`
+      ),'')
+
       return acc + `<div class="col" id="songIndex-${index}">
                       <div class="card text-white bg-danger mb-3" style="min-width: 18rem;">
                         <div class="card-body">
                           <h5 class="card-title">${song.song}(INVALID)</h5>
                           <h6 class="card-subtitle mb-2 text-muted">${song.artist}</h6>
-                          <p class="card-text">${song.error.message}</p>
+                          ${errorMarkup}
                         </div>
                       </div>
                     </div>`
