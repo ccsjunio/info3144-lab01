@@ -5,12 +5,12 @@ class TuneType {
   MIN_YEAR = 1950;
   MAX_YEAR = 2019; 
 
-  constructor() {
+  constructor({song, artist, genre, yearPub}) {
     // declare class properties
-    this._song;
-    this._artist;
-    this._genre;
-    this._yearPub;
+    this._song = song;
+    this._artist = artist;
+    this._genre = genre;
+    this._yearPub = yearPub;
     // defines a stack for gathering error
     this.error = [];
 
@@ -147,24 +147,28 @@ function startMeUp(){
       genre : "Pop",
       yearPub : "2020",
     },
+    // this song has an invalid year
     {
       song : "Running on Empty",
       artist : "Jackson Browne",
       genre : "Rock",
       yearPub : "77",
     },
+    // this song has an invalid year
     {
       song : "Brown Sugar",
       artist : "Rolling Stones",
       genre : "Rock",
       yearPub : "ABCD",
     },
+    // this song has an invalid year
     {
       song : "Ignition",
       artist : "Kelly",
       genre : "Rock",
       yearPub : null,
     },
+    // this song has an invalid year
     {
       song : "Over There",
       artist : "George M. Cohan",
@@ -173,65 +177,85 @@ function startMeUp(){
     }
   ]
 
-  // initialize a new array of instances of the object defined by the class
-  let mySongs = songs.map(
-    song=>{
-      let newSong = new TuneType();
+  // initialize the first song
+  // providing the object with parameters
+  // to define it with the class structure
+  let mySong = new TuneType(songs[0]);
+
+  // initialize a constant to contain the dom element
+  // to show the output
+  let outputContainer = document.getElementById(OUTPUT_ELEMENT_ID);
+
+  // write the first song to the output
+  // this first one has all attributes
+  // within validation parameters
+  // the attributes will be used to build the markup
+  outputContainer.innerHTML = `<div class="col" id="songIndex-0">
+                                <div class="card mb-3" style="min-width: 18rem;">
+                                  <div class="card-body">
+                                    <h5 class="card-title">${mySong.song}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">${mySong.artist}</h6>
+                                    <p class="card-text">${mySong.songDetails()}</p>
+                                  </div>
+                                </div>
+                              </div>`;
+
+  // remove the song already used from the array
+  songs.shift();
+
+  // iterate through the array of songs
+  // at each iteration the attributes
+  // of the object are update
+  // via setters
+  songs.forEach((song,index)=>{
+
+    // reset the error array
+    mySong.error = [];
+    // update attributes from the object
+    // instance of the class through 
+    // the setters
+    mySong.song = song.song;
+    mySong.artist = song.artist;
+    mySong.genre = song.genre;
+    mySong.yearPub = song.yearPub;
+
+    // if there is some error in the update
+    // the attribute error will be a non-empty array
+    // so an error markup will be produced
+    if(mySong.error.length > 0){
       
-      newSong.song = song.song;
-      newSong.artist = song.artist;
-      newSong.genre = song.genre;
-      newSong.yearPub = song.yearPub;
-
-      return newSong;
-    }
-  );
-
-  //sort songs using the invalid year as criteria
-  mySongs.sort((a,b)=>{
-    if(a.error.status) return 1;
-    if(b.error.status) return -1;
-    return 0;
-  })
-  console.log('mySongs = ', mySongs);
-
-  // render the output with song information
-  let markup = "";
-  markup = mySongs.reduce((acc,song,index)=>{
-
-    let thisMarkup = '';
-
-    if(song.error.length > 0){
-
-      let errorMarkup = song.error.reduce((acc, err, index)=>(
-         acc + `<p class"card-text">${err.message}</p>`
+      // generate the error markup
+      // from the array of errors
+      let errorMarkup = mySong.error.reduce((acc, err, index)=>(
+        acc + `<p class"card-text">${err.message}</p>`
       ),'')
 
-      return acc + `<div class="col" id="songIndex-${index}">
-                      <div class="card text-white bg-danger mb-3" style="min-width: 18rem;">
-                        <div class="card-body">
-                          <h5 class="card-title">${song.song}(INVALID)</h5>
-                          <h6 class="card-subtitle mb-2 text-muted">${song.artist}</h6>
-                          ${errorMarkup}
-                        </div>
-                      </div>
-                    </div>`
-    }
+      // output the error markup to the output element
+      outputContainer.innerHTML +=`<div class="col-12" id="songIndex-${index}">
+                                    <div class="card text-white bg-danger mb-3" style="min-width: 18rem;">
+                                      <div class="card-body">
+                                        <h5 class="card-title">${mySong.song} <span class="badge badge-warning">INVALID INPUT</span> </h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">${mySong.artist}</h6>
+                                        ${errorMarkup}
+                                      </div>
+                                    </div>
+                                  </div>`;
+    } else {
+      // if the error array is empty, than the
+      // input is OK and the regular markup is 
+      // sent to the output
+      outputContainer.innerHTML += `<div class="col-12" id="songIndex-${index}">
+                                    <div class="card mb-3" style="min-width: 18rem;">
+                                      <div class="card-body">
+                                        <h5 class="card-title">${mySong.song}</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">${mySong.artist}</h6>
+                                        <p class="card-text">${mySong.songDetails()}</p>
+                                      </div>
+                                    </div>
+                                  </div>`;
+      
+    } // end of the output of regular song
 
-    return acc + `<div class="col" id="songIndex-${index}">
-                    <div class="card mb-3" style="min-width: 18rem;">
-                      <div class="card-body">
-                        <h5 class="card-title">${song.song}</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">${song.artist}</h6>
-                        <p class="card-text">${song.songDetails()}</p>
-                      </div>
-                    </div>
-                  </div>`;
+  }); // end of songs.forEach
 
-  },'');
-
-  console.log('markup = ', markup);
-
-  let outputContainer = document.getElementById(OUTPUT_ELEMENT_ID);
-  outputContainer.innerHTML = markup;
 } // end of StartMeUp
